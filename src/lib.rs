@@ -1,9 +1,9 @@
 use std::{
     fmt::{Debug, Write},
-    ops::{Add, AddAssign, Mul, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign},
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub struct Complex<T: Copy> {
     real: T,
     imaginary: T,
@@ -32,11 +32,11 @@ macro_rules! c {
     ($real:tt -i $imaginary:tt) => {
         Complex::new($real, -($imaginary))
     };
-    ($real:tt +i_$imaginary:tt) => {
-        Complex::new($real, $imaginary)
+    (-$real:tt +i $imaginary:tt) => {
+        Complex::new(-$real, $imaginary)
     };
-    ($real:tt -i_$imaginary:tt) => {
-        Complex::new($real, -($imaginary))
+    (-$real:tt -i $imaginary:tt) => {
+        Complex::new(-$real, -($imaginary))
     };
 }
 
@@ -167,6 +167,35 @@ where
     }
 }
 
+impl<T> Div<Complex<T>> for Complex<T>
+where
+    T: Copy + Mul<Output = T> + Add<Output = T> + Div<Output = T> + Sub<Output = T>,
+{
+    type Output = Self;
+    fn div(self, rhs: Complex<T>) -> Self::Output {
+        // (a+bi)/(c+di)=(ac+bd)/(c^2+d^2) +((bc-ad)/(c^2+d^2))i
+        let a = self.real;
+        let b = self.imaginary;
+        let c = rhs.real;
+        let d = rhs.imaginary;
+
+        let real = ((a * c) + (b * d)) / ((c * c) + (d * d));
+        let imaginary = ((b * c) - (a * d)) / ((c * c) + (d * d));
+        (real, imaginary).into()
+    }
+}
+
+impl<T> Neg for Complex<T>
+where
+    T: Neg<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        (-self.real, -self.imaginary).into()
+    }
+}
+
 impl<T: Copy> From<(T, T)> for Complex<T> {
     fn from((r, i): (T, T)) -> Self {
         Self::new(r, i)
@@ -179,8 +208,18 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let v = c!(10 + i 32);
-        let v = c!(10 - i 32);
-        dbg!(v);
+        let a = c!(3 + i 2);
+        let b = c!(2 - i 3);
+
+        let c = a * b;
+        assert_eq!(c, (12, -9 + 4).into());
+
+        let c = a + b;
+        assert_eq!(c, c!(5 - i 1));
+
+        let c = a - b;
+        assert_eq!(c, c!(1 + i 5));
+
+        assert_eq!(b - a, -c);
     }
 }
