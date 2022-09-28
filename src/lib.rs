@@ -208,6 +208,8 @@ mod tests {
 
     #[test]
     fn it_works() {
+        // https://mathsolver.microsoft.com/zh/solve-problem/
+
         let a = c!(3 + i 2);
         let b = c!(2 - i 3);
 
@@ -221,5 +223,7 @@ mod tests {
         assert_eq!(c, c!(1 + i 5));
 
         assert_eq!(b - a, -c);
+
+        assert_eq!(a / b, (0, 1).into());
     }
 }
