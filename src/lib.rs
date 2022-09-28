@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Write},
-    ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 #[derive(Clone, Copy, Eq, PartialEq)]
@@ -167,6 +167,42 @@ where
     }
 }
 
+impl<T> Mul<T> for Complex<T>
+where
+    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T> + Copy,
+{
+    type Output = Complex<T>;
+    fn mul(self, rhs: T) -> Self::Output {
+        let real: T = self.real * rhs;
+        let imaginary: T = self.imaginary * rhs;
+        (real, imaginary).into()
+    }
+}
+
+impl<T> MulAssign<Complex<T>> for Complex<T>
+where
+    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T> + Copy,
+{
+    fn mul_assign(&mut self, rhs: Complex<T>) {
+        let real: T = self.real * rhs.real - (self.imaginary * rhs.imaginary);
+        let imaginary: T = self.imaginary * rhs.real + (rhs.imaginary * self.real);
+        self.real = real;
+        self.imaginary = imaginary;
+    }
+}
+
+impl<T> MulAssign<T> for Complex<T>
+where
+    T: Mul<Output = T> + Sub<Output = T> + Add<Output = T> + Copy,
+{
+    fn mul_assign(&mut self, rhs: T) {
+        let real: T = self.real * rhs;
+        let imaginary: T = self.imaginary * rhs;
+        self.real = real;
+        self.imaginary = imaginary;
+    }
+}
+
 impl<T> Div<Complex<T>> for Complex<T>
 where
     T: Copy + Mul<Output = T> + Add<Output = T> + Div<Output = T> + Sub<Output = T>,
@@ -182,6 +218,61 @@ where
         let real = ((a * c) + (b * d)) / ((c * c) + (d * d));
         let imaginary = ((b * c) - (a * d)) / ((c * c) + (d * d));
         (real, imaginary).into()
+    }
+}
+
+impl<T> Div<T> for Complex<T>
+where
+    T: Copy + Mul<Output = T> + Add<Output = T> + Div<Output = T> + Sub<Output = T>,
+{
+    type Output = Self;
+    fn div(self, rhs: T) -> Self::Output {
+        // (a+bi)/(c+di)=(ac+bd)/(c^2+d^2) +((bc-ad)/(c^2+d^2))i
+        let a = self.real;
+        let b = self.imaginary;
+        let c = rhs;
+
+        let real = a / c;
+        let imaginary = b / c;
+
+        (real, imaginary).into()
+    }
+}
+
+impl<T> DivAssign<Complex<T>> for Complex<T>
+where
+    T: Copy + Mul<Output = T> + Add<Output = T> + Div<Output = T> + Sub<Output = T>,
+{
+    fn div_assign(&mut self, rhs: Complex<T>) {
+        // (a+bi)/(c+di)=(ac+bd)/(c^2+d^2) +((bc-ad)/(c^2+d^2))i
+        let a = self.real;
+        let b = self.imaginary;
+        let c = rhs.real;
+        let d = rhs.imaginary;
+
+        let real = ((a * c) + (b * d)) / ((c * c) + (d * d));
+        let imaginary = ((b * c) - (a * d)) / ((c * c) + (d * d));
+
+        self.real = real;
+        self.imaginary = imaginary;
+    }
+}
+
+impl<T> DivAssign<T> for Complex<T>
+where
+    T: Copy + Mul<Output = T> + Add<Output = T> + Div<Output = T> + Sub<Output = T>,
+{
+    fn div_assign(&mut self, rhs: T) {
+        // (a+bi)/(c+di)=(ac+bd)/(c^2+d^2) +((bc-ad)/(c^2+d^2))i
+        let a = self.real;
+        let b = self.imaginary;
+        let c = rhs;
+
+        let real = a / c;
+        let imaginary = b / c;
+
+        self.real = real;
+        self.imaginary = imaginary;
     }
 }
 
