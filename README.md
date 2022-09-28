@@ -27,5 +27,7 @@ usage
     assert_eq!(c, c!(1 + i 5));
 
     assert_eq!(b - a, -c);
+
+    assert_eq!(a / b, (0, 1).into());
   }
 ```
