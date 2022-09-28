@@ -1,9 +1,27 @@
-use std::ops::{Add, AddAssign, Mul, Sub, SubAssign};
+use std::{
+    fmt::{Debug, Write},
+    ops::{Add, AddAssign, Mul, Sub, SubAssign},
+};
 
 #[derive(Clone, Copy)]
 pub struct Complex<T: Copy> {
     real: T,
     imaginary: T,
+}
+
+impl<T> Debug for Complex<T>
+where
+    T: Debug + Copy,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char('(')?;
+        self.real.fmt(f)?;
+        f.write_str(", ")?;
+        self.imaginary.fmt(f)?;
+        f.write_char('i')?;
+        f.write_char(')')?;
+        Ok(())
+    }
 }
 
 #[macro_export]
@@ -26,6 +44,7 @@ impl<T> Complex<T>
 where
     T: Copy,
 {
+    #[inline]
     pub fn new(r: T, i: T) -> Self {
         Self {
             real: r,
@@ -33,18 +52,22 @@ where
         }
     }
 
+    #[inline]
     pub fn real(&self) -> T {
         self.real
     }
 
+    #[inline]
     pub fn imaginary(&self) -> T {
         self.imaginary
     }
 
+    #[inline]
     pub fn set_real(&mut self, real: T) {
         self.real = real
     }
 
+    #[inline]
     pub fn set_imaginary(&mut self, imaginary: T) {
         self.imaginary = imaginary
     }
@@ -158,5 +181,6 @@ mod tests {
     fn it_works() {
         let v = c!(10 + i 32);
         let v = c!(10 - i 32);
+        dbg!(v);
     }
 }
