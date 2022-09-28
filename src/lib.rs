@@ -162,8 +162,8 @@ where
     type Output = Complex<T>;
     fn mul(self, rhs: Complex<T>) -> Self::Output {
         let real: T = self.real * rhs.real - (self.imaginary * rhs.imaginary);
-        let image: T = self.imaginary * rhs.real + (rhs.imaginary * self.real);
-        (real, image).into()
+        let imaginary: T = self.imaginary * rhs.real + (rhs.imaginary * self.real);
+        (real, imaginary).into()
     }
 }
 
