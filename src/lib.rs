@@ -202,6 +202,15 @@ impl<T: Copy> From<(T, T)> for Complex<T> {
     }
 }
 
+impl<T> From<T> for Complex<T>
+where
+    T: Copy + Default,
+{
+    fn from(r: T) -> Self {
+        Self::new(r, T::default())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
