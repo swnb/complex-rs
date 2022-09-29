@@ -44,6 +44,7 @@ impl<T> Complex<T>
 where
     T: Copy,
 {
+    #[inline]
     pub const fn new_const(r: T, i: T) -> Self {
         Self {
             real: r,
